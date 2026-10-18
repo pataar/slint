@@ -29,6 +29,7 @@ armeabi
 armhf
 arrayvec
 artboard
+ashpd
 assetcatalog
 astrolib
 astrowind
@@ -135,6 +136,7 @@ Datas
 datatypes
 Datelike
 DBUILD
+dbus
 DCACHE
 DCMAKE
 DDEFAULT
