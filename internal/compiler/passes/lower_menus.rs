@@ -680,6 +680,13 @@ fn lower_menu_items(
                     );
                 }
 
+                if !in_menubar && let Some(binding) = element.borrow().binding("role") {
+                    diag.push_error(
+                        "'role' is only supported on a 'MenuItem' in a 'MenuBar'".into(),
+                        &*binding,
+                    );
+                }
+
                 if element.borrow().base_type.type_name() == Some("MenuSeparator") {
                     element.borrow_mut().set_binding(
                         "title".into(),
