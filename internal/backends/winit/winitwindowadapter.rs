@@ -593,6 +593,15 @@ impl WinitWindowAdapter {
             }
         }
 
+        // A click on a tray icon comes with the token that lets this window come to the front on
+        // Wayland.
+        #[cfg(all(target_os = "linux", feature = "wayland"))]
+        if let Some(token) = i_slint_core::items::system_tray::take_tray_activation_token() {
+            use winit::platform::startup_notify::WindowAttributesExtStartupNotify;
+            window_attributes = window_attributes
+                .with_activation_token(winit::window::ActivationToken::from_raw(token));
+        }
+
         // Never show the window right away, as we
         //  a) need to compute the correct size based on the scale factor before it's shown on the screen (handled by set_visible)
         //  b) need to create the accesskit adapter before it's shown on the screen, as required by accesskit.

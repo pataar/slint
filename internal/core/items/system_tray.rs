@@ -49,6 +49,19 @@ cfg_if::cfg_if! {
     }
 }
 
+/// Takes the XDG activation token the host gave with the last click on a tray icon or its menu,
+/// unless a window used it already. The winit backend hands it to the next window it creates, so
+/// that window may come to the front on Wayland.
+pub fn take_tray_activation_token() -> Option<alloc::string::String> {
+    cfg_if::cfg_if! {
+        if #[cfg(all(feature = "system-tray", target_family = "unix", not(target_vendor = "apple"), not(target_os = "android")))] {
+            self::ksni::take_activation_token()
+        } else {
+            None
+        }
+    }
+}
+
 /// Parameters passed to the platform-specific tray backend when building a tray icon.
 pub struct Params<'a> {
     pub icon: &'a Image,
