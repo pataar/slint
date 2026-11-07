@@ -299,8 +299,7 @@ async fn dispatch_loop(
         let Some(tray) = item_rc.downcast::<super::SystemTrayIcon>() else { continue };
         let tray = tray.as_pin_ref();
 
-        // Plasma shows a launch entry on its task bar for each token it hands out, until a window
-        // uses that token.
+        // On Wayland a window comes to the front only with the token of the click that shows it.
         let (Event::Activate(token) | Event::Menu(_, token)) = &event;
         if let (Some(token), Some(context)) = (token, context.upgrade()) {
             context.platform().set_xdg_activation_token(token.clone(), crate::InternalToken);
