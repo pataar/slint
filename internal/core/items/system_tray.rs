@@ -52,6 +52,7 @@ cfg_if::cfg_if! {
 /// Parameters passed to the platform-specific tray backend when building a tray icon.
 pub struct Params<'a> {
     pub icon: &'a Image,
+    pub icon_is_template: bool,
     pub tooltip: &'a str,
     pub title: &'a str,
 }
@@ -96,8 +97,8 @@ impl SystemTrayIconHandle {
         self.0.set_visible(visible);
     }
 
-    pub fn set_icon(&self, icon: &Image) {
-        self.0.set_icon(icon);
+    pub fn set_icon(&self, icon: &Image, is_template: bool) {
+        self.0.set_icon(icon, is_template);
     }
 
     pub fn set_tooltip(&self, tooltip: &str) {
@@ -206,6 +207,7 @@ impl crate::properties::PropertyDirtyHandler for MenuDirtyHandler {
 #[pin]
 pub struct SystemTrayIcon {
     pub icon: Property<Image>,
+    pub icon_is_template: Property<bool>,
     pub tooltip: Property<SharedString>,
     pub title: Property<SharedString>,
     pub visible: Property<bool>,
@@ -302,7 +304,12 @@ impl Item for SystemTrayIcon {
                 };
                 let tray = tray.as_pin_ref();
                 let handle = match SystemTrayIconHandle::new(
-                    Params { icon: &tray.icon(), tooltip: &tray.tooltip(), title: &tray.title() },
+                    Params {
+                        icon: &tray.icon(),
+                        icon_is_template: tray.icon_is_template(),
+                        tooltip: &tray.tooltip(),
+                        title: &tray.title(),
+                    },
                     self_weak.clone(),
                     &ctx,
                 ) {
@@ -348,17 +355,18 @@ impl Item for SystemTrayIcon {
         self.data.icon_tracker.init_delayed(
             self_rc.downgrade(),
             |self_weak| {
-                let Some(tray_rc) = self_weak.upgrade() else { return Image::default() };
+                let Some(tray_rc) = self_weak.upgrade() else { return Default::default() };
                 let Some(tray) = tray_rc.downcast::<SystemTrayIcon>() else {
-                    return Image::default();
+                    return Default::default();
                 };
-                tray.as_pin_ref().icon()
+                let tray = tray.as_pin_ref();
+                (tray.icon(), tray.icon_is_template())
             },
-            |self_weak, icon| {
+            |self_weak, (icon, is_template)| {
                 let Some(tray_rc) = self_weak.upgrade() else { return };
                 let Some(tray) = tray_rc.downcast::<SystemTrayIcon>() else { return };
                 if let Some(handle) = tray.as_pin_ref().data.inner.get() {
-                    handle.set_icon(icon);
+                    handle.set_icon(icon, *is_template);
                 }
             },
         );

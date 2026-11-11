@@ -4025,6 +4025,15 @@ fn build(l: &mut Loader) {
         /// for tray icons. Use `@image-url(...)` to embed an icon asset, or bind to an `image` property
         /// fed from your code. The tray icon is only created once a non-empty image has been assigned.
         in property <image> icon;
+        /// Whether `icon` is a template image: only its alpha channel counts, and the platform
+        /// draws it in the colour that suits the tray, as it does its own icons.
+        ///
+        /// | Platform      | Effect                                                                                          |
+        /// | ------------- | ----------------------------------------------------------------------------------------------- |
+        /// | macOS         | Sets [`NSImage.isTemplate`](https://developer.apple.com/documentation/appkit/nsimage/istemplate), so the menu bar tints the icon for its appearance and state. |
+        /// | Linux, \*BSD  | None; the icon is drawn as is.                                                                  |
+        /// | Windows       | None; the icon is drawn as is.                                                                  |
+        in property <bool> icon-is-template;
         /// The hover text shown over the tray icon.
         /// Typically the application name or a short status message.
         in property <string> tooltip;

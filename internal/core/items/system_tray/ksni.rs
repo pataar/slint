@@ -198,7 +198,7 @@ impl PlatformTray {
         }
     }
 
-    pub fn set_icon(&self, icon: &Image) {
+    pub fn set_icon(&self, icon: &Image, _is_template: bool) {
         // If the conversion fails (image with no rgba8 buffer), keep the
         // previous icon. Mirrors the silent-failure behavior elsewhere on
         // this backend; the platform handle is best-effort.

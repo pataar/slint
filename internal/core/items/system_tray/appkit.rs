@@ -152,7 +152,7 @@ fn scheme_for_appearance(appearance: &NSAppearance) -> ColorScheme {
 // Icon conversion: Slint `Image` -> `NSImage` via `NSBitmapImageRep`.
 // ---------------------------------------------------------------------------
 
-fn image_to_nsimage(icon: &Image) -> Result<Retained<NSImage>, Error> {
+fn image_to_nsimage(icon: &Image, is_template: bool) -> Result<Retained<NSImage>, Error> {
     let pixel_buffer = icon.to_rgba8().ok_or(Error::Rgba8)?;
     let width = pixel_buffer.width();
     let height = pixel_buffer.height();
@@ -179,6 +179,7 @@ fn image_to_nsimage(icon: &Image) -> Result<Retained<NSImage>, Error> {
     const TRAY_ICON_HEIGHT_PT: f64 = 18.0;
     let aspect = width as f64 / height as f64;
     image.setSize(NSSize { width: TRAY_ICON_HEIGHT_PT * aspect, height: TRAY_ICON_HEIGHT_PT });
+    image.setTemplate(is_template);
     Ok(image)
 }
 
@@ -202,7 +203,7 @@ impl PlatformTray {
         let mtm = MainThreadMarker::new()
             .expect("SystemTrayIcon must be created on the main thread on macOS");
 
-        let image = image_to_nsimage(params.icon)?;
+        let image = image_to_nsimage(params.icon, params.icon_is_template)?;
 
         let status_bar = NSStatusBar::systemStatusBar();
         let status_item = status_bar.statusItemWithLength(NSVariableStatusItemLength);
@@ -269,10 +270,10 @@ impl PlatformTray {
         self.status_item.setVisible(visible);
     }
 
-    pub fn set_icon(&self, icon: &Image) {
+    pub fn set_icon(&self, icon: &Image, is_template: bool) {
         // Build the new NSImage first; if conversion fails, leave the previous
         // icon in place rather than blanking the button.
-        let Ok(image) = image_to_nsimage(icon) else { return };
+        let Ok(image) = image_to_nsimage(icon, is_template) else { return };
         if let Some(button) = self.status_item.button(self.mtm) {
             button.setImage(Some(&image));
         }

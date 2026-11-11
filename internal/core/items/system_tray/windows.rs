@@ -209,7 +209,7 @@ impl PlatformTray {
         let _ = unsafe { Shell_NotifyIconW(NIM_MODIFY, &data) };
     }
 
-    pub fn set_icon(&self, icon: &Image) {
+    pub fn set_icon(&self, icon: &Image, _is_template: bool) {
         // Build the new HICON before touching anything else; if conversion
         // fails, leave the previous icon in place rather than blanking it.
         let Ok(new_hicon) = create_hicon(icon) else { return };

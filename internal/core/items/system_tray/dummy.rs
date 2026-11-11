@@ -33,7 +33,7 @@ impl PlatformTray {
 
     pub fn set_visible(&self, _visible: bool) {}
 
-    pub fn set_icon(&self, _icon: &Image) {}
+    pub fn set_icon(&self, _icon: &Image, _is_template: bool) {}
 
     pub fn set_tooltip(&self, _tooltip: &str) {}
 
